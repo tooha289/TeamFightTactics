@@ -1,0 +1,9 @@
+# Ignore CSV files in the 'product' folder
+# product/*.csv
+
+# Ignore tft.json files in the 'json' folder
+#json/tft.json
+
+# Ignore .log files everywhere
+*.log
+*.pyc

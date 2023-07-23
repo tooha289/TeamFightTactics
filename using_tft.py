@@ -1,0 +1,109 @@
+from os.path import join
+from team_fight_tactics import TftScraper, RiotApiAdaptor, TftDataHandler
+import csv_utilities
+import logging
+
+if __name__ == "__main__":
+    LOGGING_FORMAT = "%(asctime)s %(levelname)-8s %(name)-15s %(message)s"
+    logging.basicConfig(level=logging.DEBUG, format=LOGGING_FORMAT)
+
+    scraper = TftScraper()
+    riot_api_adaptor = RiotApiAdaptor("")
+    tft_data_handler = TftDataHandler(riot_api_adaptor)
+
+    regions = [
+        "BR",
+        "EUNE",
+        "EUW",
+        "JP",
+        "KR",
+        "LAN",
+        "LAS",
+        "NA",
+        "OCE",
+        "PH",
+        "RU",
+        "SG",
+        "TH",
+        "TR",
+        "TW",
+        "VN",
+    ]
+
+    slected_region = ["BR"]
+    for region in slected_region:
+        start_ranking = 1
+        end_ranking = 2
+
+        players = tft_data_handler.get_players_with_puuid(
+            scraper.get_top_players_without_puuid(start_ranking, end_ranking, region)
+        )
+        # store player data
+        csv_utilities.save_class_list_to_csv(
+            f"./product/players/tft_players_{region}.csv",
+            players,
+            with_header=True,
+            header_strip_str="_",
+        )
+
+        matches_json = []
+        match_ids = set()
+        matches, match_players, match_augments, match_traits, match_units = (
+            [],
+            [],
+            [],
+            [],
+            [],
+        )
+        continent = players[0].continent
+        start_index = 0
+        match_count = 2
+
+        for player in players:
+            response = riot_api_adaptor.get_match_ids_by_puuid(
+                player.continent, player.puuid, start_index, match_count
+            )
+            match_ids.update(response.json())
+
+        for match_id in match_ids:
+            response = riot_api_adaptor.get_matches_by_match_id(continent, match_id)
+            matches_json.append(response.json())
+
+        for match_json in matches_json:
+            matches.append(tft_data_handler.get_matches_from(match_json))
+            match_players.extend(tft_data_handler.get_match_players_from(match_json))
+            match_augments.extend(tft_data_handler.get_match_augments_from(match_json))
+            match_traits.extend(tft_data_handler.get_match_traits_from(match_json))
+            match_units.extend(tft_data_handler.get_match_units_from(match_json))
+
+        path_format_strings = [
+            "./product/matches/tft_matches_{region}.csv",
+            "./product/match_players/tft_match_players_{region}.csv",
+            "./product/match_augments/tft_match_augments_{region}.csv",
+            "./product/match_traits/tft_match_traits_{region}.csv",
+            "./product/match_traits/tft_match_traits_{region}.csv",
+            "./product/match_units/tft_match_units_{region}.csv",
+        ]
+
+        # stroe Match, MatchPlayer, MatchAugment, MatchTrait, MatchUnit data
+        for path in path_format_strings:
+            csv_utilities.save_class_list_to_csv(
+                path.format(region=region),
+                matches,
+                with_header=True,
+                header_strip_str="_",
+            )
+
+    directory_file_dict = {
+        "./product/players": "tft_players.csv",
+        "./product/matches": "tft_matches.csv",
+        "./product/match_players": "tft_match_players.csv",
+        "./product/match_augments": "tft_match_augments.csv",
+        "./product/match_traits": "tft_match_traits.csv",
+        "./product/match_units": "tft_match_units.csv",
+    }
+
+    # merge csv files
+    for directory, file_name in directory_file_dict.items():
+        lines = csv_utilities.merge_csv_files_in_directory(directory, with_header=True)
+        csv_utilities.save_csv_file(join(directory, file_name), lines)

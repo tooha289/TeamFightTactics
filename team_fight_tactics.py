@@ -1,9 +1,11 @@
 """
-This module contains classes that collect TFT data, TFT-related entities, and handlers.
+This module contains classes that collect TFT data, and handlers.
 
 Author: Chung seop, Shin
 Date Created: 2023/07/17
 """
+from tft_models import *
+from utility import pad_list
 from pprint import pprint
 from typing import Iterable, Optional
 from bs4 import BeautifulSoup
@@ -11,7 +13,6 @@ import logging
 import requests
 import random
 import time
-from utility import pad_list
 
 REGIONS_INFO = {
     "BR": ["AMERICAS", "BR1"],
@@ -33,404 +34,6 @@ REGIONS_INFO = {
 }
 
 
-class Player(object):
-    def __init__(self, puuid, name, continent, region, ranking) -> None:
-        self._puuid = puuid
-        self._name = name
-        self._continent = continent
-        self._region = region
-        self._ranking = ranking
-
-    @property
-    def puuid(self):
-        return self._puuid
-
-    @puuid.setter
-    def puuid(self, value):
-        self._puuid = value
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
-
-    @property
-    def continent(self):
-        return self._continent
-
-    @continent.setter
-    def continent(self, value):
-        self._continent = value
-
-    @property
-    def region(self):
-        return self._region
-
-    @region.setter
-    def region(self, value):
-        self._region = value
-
-    @property
-    def ranking(self):
-        return self._ranking
-
-    @ranking.setter
-    def ranking(self, value):
-        self._ranking = value
-
-    def __repr__(self) -> str:
-        return f"{vars(self)}"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
-class Match(object):
-    def __init__(self, match_id, match_datetime, match_length, tft_set_number) -> None:
-        self._match_id = match_id
-        self._match_datetime = match_datetime
-        self._match_length = match_length
-        self._tft_set_number = tft_set_number
-
-    @property
-    def match_id(self):
-        return self._match_id
-
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
-
-    @property
-    def match_datetime(self):
-        return self._match_datetime
-
-    @match_datetime.setter
-    def match_datetime(self, value):
-        self._match_datetime = value
-
-    @property
-    def match_length(self):
-        return self._match_length
-
-    @match_length.setter
-    def match_length(self, value):
-        self._match_length = value
-
-    @property
-    def tft_set_number(self):
-        return self._tft_set_number
-
-    @tft_set_number.setter
-    def tft_set_number(self, value):
-        self._tft_set_number = value
-
-    def __repr__(self) -> str:
-        return f"{vars(self)}"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
-class MatchPlayer(object):
-    def __init__(
-        self, match_id, puuid, last_round, level, placement, time_eliminated
-    ) -> None:
-        self._match_id = match_id
-        self._puuid = puuid
-        self._last_round = last_round
-        self._level = level
-        self._placement = placement
-        self._time_eliminated = time_eliminated
-
-    @property
-    def match_id(self):
-        return self._match_id
-
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
-
-    @property
-    def puuid(self):
-        return self._puuid
-
-    @puuid.setter
-    def puuid(self, value):
-        self._puuid = value
-
-    @property
-    def last_round(self):
-        return self._last_round
-
-    @last_round.setter
-    def last_round(self, value):
-        self._last_round = value
-
-    @property
-    def level(self):
-        return self._level
-
-    @level.setter
-    def level(self, value):
-        self._level = value
-
-    @property
-    def time_eliminated(self):
-        return self._time_eliminated
-
-    @time_eliminated.setter
-    def time_eliminated(self, value):
-        self._time_eliminated = value
-
-    @property
-    def placement(self):
-        return self._placement
-
-    @placement.setter
-    def placement(self, value):
-        self._placement = value
-
-    def __repr__(self) -> str:
-        return f"{vars(self)}"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
-class MatchAugment(object):
-    def __init__(self, match_id, puuid, name, sequence) -> None:
-        self._match_id = match_id
-        self._puuid = puuid
-        self._name = name
-        self._sequence = sequence
-
-    @property
-    def match_id(self):
-        return self._match_id
-
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
-
-    @property
-    def puuid(self):
-        return self._puuid
-
-    @puuid.setter
-    def puuid(self, value):
-        self._puuid = value
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
-
-    @property
-    def sequence(self):
-        return self._sequence
-
-    @sequence.setter
-    def sequence(self, value):
-        self._sequence = value
-
-    def __repr__(self) -> str:
-        return f"{vars(self)}"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
-class MatchTrait(object):
-    def __init__(
-        self,
-        match_id,
-        puuid,
-        name,
-        num_units,
-        style,
-        tier_current,
-        tier_total,
-        sequence,
-    ) -> None:
-        self._match_id = match_id
-        self._puuid = puuid
-        self._name = name
-        self._num_units = num_units
-        self._style = style
-        self._tier_current = tier_current
-        self._tier_total = tier_total
-        self._sequence = sequence
-
-    @property
-    def match_id(self):
-        return self._match_id
-
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
-
-    @property
-    def puuid(self):
-        return self._puuid
-
-    @puuid.setter
-    def puuid(self, value):
-        self._puuid = value
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
-
-    @property
-    def num_units(self):
-        return self._num_units
-
-    @num_units.setter
-    def num_units(self, value):
-        self._num_units = value
-
-    @property
-    def style(self):
-        return self._style
-
-    @style.setter
-    def style(self, value):
-        self._style = value
-
-    @property
-    def tier_current(self):
-        return self._tier_current
-
-    @tier_current.setter
-    def tier_current(self, value):
-        return self._tier_current
-
-    @property
-    def tier_total(self):
-        return self._tier_total
-
-    @tier_total.setter
-    def tier_total(self, value):
-        self._tier_total = value
-
-    @property
-    def sequence(self):
-        return self._sequence
-
-    @sequence.setter
-    def sequence(self, value):
-        self._sequence = value
-
-    def __repr__(self) -> str:
-        return f"{vars(self)}"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
-class MatchUnit(object):
-    def __init__(
-        self, match_id, puuid, unit_id, rarity, tier, sequence, item1, item2, item3
-    ) -> None:
-        self._match_id = match_id
-        self._puuid = puuid
-        self._unit_id = unit_id
-        self._rarity = rarity
-        self._tier = tier
-        self._sequence = sequence
-        self._item1 = item1
-        self._item2 = item2
-        self._item3 = item3
-
-    @property
-    def match_id(self):
-        return self._match_id
-
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
-
-    @property
-    def puuid(self):
-        return self._puuid
-
-    @puuid.setter
-    def puuid(self, value):
-        self._puuid = value
-
-    @property
-    def unit_id(self):
-        return self._unit_id
-
-    @unit_id.setter
-    def unit_id(self, value):
-        self._unit_id = value
-
-    @property
-    def rarity(self):
-        return self._rarity
-
-    @rarity.setter
-    def rarity(self, value):
-        self._rarity = value
-
-    @property
-    def tier(self):
-        return self._tier
-
-    @tier.setter
-    def tier(self, value):
-        self._tier = value
-
-    @property
-    def sequence(self):
-        return self._sequence
-
-    @sequence.setter
-    def sequence(self, value):
-        self._sequence = value
-
-    @property
-    def item1(self):
-        return self._item1
-
-    @item1.setter
-    def item1(self, value):
-        self._item1 = value
-
-    @property
-    def item2(self):
-        return self._item2
-
-    @item2.setter
-    def item2(self, value):
-        self._item2 = value
-
-    @property
-    def item3(self):
-        return self._item3
-
-    @item3.setter
-    def item3(self, value):
-        self._item3 = value
-
-    def __repr__(self) -> str:
-        return f"{vars(self)}"
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
 class TftScraper(object):
     def __init__(self) -> None:
         self._logger = logging.getLogger("team_fight_tactics.TftScraper")
@@ -440,6 +43,10 @@ class TftScraper(object):
         }
         self._ssesion = requests.Session()
         self._ssesion.headers.update(self._header)
+
+    @property
+    def logger(self):
+        return self._logger
 
     def get_top_players_without_puuid(self, start, end, *regions):
         """Get player info from "lolchess.gg" site. However, no puuid information is provided.
@@ -498,6 +105,10 @@ class RiotApiAdaptor(object):
             "https://{continent}.api.riotgames.com/tft/match/v1/matches/{match_id}"
         )
         self._headers = {"X-Riot-Token": self._api_key}
+
+    @property
+    def logger(self):
+        return self._logger
 
     @property
     def api_key(self):
@@ -593,16 +204,33 @@ class TftDataHandler(object):
         self._logger = logging.getLogger(f"team_fight_tactics.TftDataBuilder")
         self._riot_api_adaptor = riot_api_adaptor
 
+    @property
+    def logger(self):
+        return self._logger
+
     def get_players_with_puuid(self, players: Iterable[Player]) -> Iterable[Player]:
+        """Get a list of players with puuid.
+
+        Returns:
+            Iterable[Player]: If puuid cannot be found by name, a list excluding the player is returned.
+        """
         new_players = []
         for player in players:
-            response = self._riot_api_adaptor.get_player_by_player_name(
-                player.region, player.name
-            )
-            puuid = response.json()["puuid"]
-            player.puuid = puuid
-            new_players.append(player)
+            try:
+                response = self._riot_api_adaptor.get_player_by_player_name(
+                    player.region, player.name
+                )
+                puuid = response.json()["puuid"]
+                player.puuid = puuid
+                new_players.append(player)
 
+            except KeyError as e:
+                print(e)
+                self._logger.exception(e)
+            except Exception as e:
+                print(e)
+                self._logger.exception(e)
+                
         return new_players
 
     def get_matches_from(self, match_json) -> Optional[Match]:
@@ -617,9 +245,11 @@ class TftDataHandler(object):
                 "tft_set_number": info["tft_set_number"],
             }
             match = Match(**instance_value)
+
             return match
         except Exception as e:
             print(e)
+            self._logger.exception(e)
             return None
 
     def get_match_players_from(self, match_json) -> Iterable[MatchPlayer]:
@@ -645,6 +275,7 @@ class TftDataHandler(object):
 
         except Exception as e:
             print(e)
+            self._logger.exception(e)
             return []
 
     def get_match_augments_from(self, match_json) -> Iterable[MatchAugment]:
@@ -672,6 +303,7 @@ class TftDataHandler(object):
 
         except Exception as e:
             print(e)
+            self._logger.exception(e)
             return []
 
     def get_match_traits_from(self, match_json) -> Iterable[MatchTrait]:
@@ -703,6 +335,7 @@ class TftDataHandler(object):
 
         except Exception as e:
             print(e)
+            self._logger.exception(e)
             return []
 
     def get_match_units_from(self, match_json) -> Iterable[MatchUnit]:
@@ -737,6 +370,7 @@ class TftDataHandler(object):
 
         except Exception as e:
             print(e)
+            self._logger.exception(e)
             return []
 
     def __repr__(self) -> str:

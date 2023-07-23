@@ -1,5 +1,5 @@
 # Ignore CSV files in the 'product' folder
-# product/*.csv
+product/**/*.csv
 
 # Ignore tft.json files in the 'json' folder
 #json/tft.json

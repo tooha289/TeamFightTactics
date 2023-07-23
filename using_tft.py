@@ -47,7 +47,7 @@ if __name__ == "__main__":
         "VN",
     ]
 
-    slected_region = ["KR"]
+    slected_region = regions[15:]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     for region in slected_region:
         start_ranking = 1
-        end_ranking = 2
+        end_ranking = 10
 
         players = tft_data_handler.get_players_with_puuid(
             scraper.get_top_players_without_puuid(start_ranking, end_ranking, region)
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         )
         continent = players[0].continent
         start_index = 0
-        match_count = 2
+        match_count = 20
 
         for player in players:
             response = riot_api_adaptor.get_match_ids_by_puuid(

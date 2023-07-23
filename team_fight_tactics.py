@@ -209,9 +209,14 @@ class TftDataHandler(object):
         return self._logger
 
     def get_players_with_puuid(self, players: Iterable[Player]) -> Iterable[Player]:
-        try:
-            new_players = []
-            for player in players:
+        """Get a list of players with puuid.
+
+        Returns:
+            Iterable[Player]: If puuid cannot be found by name, a list excluding the player is returned.
+        """
+        new_players = []
+        for player in players:
+            try:
                 response = self._riot_api_adaptor.get_player_by_player_name(
                     player.region, player.name
                 )
@@ -219,11 +224,14 @@ class TftDataHandler(object):
                 player.puuid = puuid
                 new_players.append(player)
 
-            return new_players
-        except Exception as e:
-            print(e)
-            self._logger.exception(e)
-            return []
+            except KeyError as e:
+                print(e)
+                self._logger.exception(e)
+            except Exception as e:
+                print(e)
+                self._logger.exception(e)
+                
+        return new_players
 
     def get_matches_from(self, match_json) -> Optional[Match]:
         try:

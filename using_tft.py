@@ -30,7 +30,19 @@ if __name__ == "__main__":
         "VN",
     ]
 
-    slected_region = ["BR"]
+    slected_region = ["BR", "KR"]
+
+    # Format string arguments for the path.
+    relative_path = "./product"
+    match_table_names = [
+        "matches",
+        "match_players",
+        "match_augments",
+        "match_traits",
+        "match_units",
+    ]
+    table_name = "players"
+
     for region in slected_region:
         start_ranking = 1
         end_ranking = 2
@@ -40,7 +52,7 @@ if __name__ == "__main__":
         )
         # store player data
         csv_utilities.save_class_list_to_csv(
-            f"./product/players/tft_players_{region}.csv",
+            f"{relative_path}/{table_name}/tft_{table_name}_{region}.csv",
             players,
             with_header=True,
             header_strip_str="_",
@@ -76,31 +88,23 @@ if __name__ == "__main__":
             match_traits.extend(tft_data_handler.get_match_traits_from(match_json))
             match_units.extend(tft_data_handler.get_match_units_from(match_json))
 
-        path_format_strings = [
-            "./product/matches/tft_matches_{region}.csv",
-            "./product/match_players/tft_match_players_{region}.csv",
-            "./product/match_augments/tft_match_augments_{region}.csv",
-            "./product/match_traits/tft_match_traits_{region}.csv",
-            "./product/match_traits/tft_match_traits_{region}.csv",
-            "./product/match_units/tft_match_units_{region}.csv",
+        path_strings = [
+            f"{relative_path}/{match_table}/tft_{match_table}_{region}.csv"
+            for match_table in match_table_names
         ]
 
         # stroe Match, MatchPlayer, MatchAugment, MatchTrait, MatchUnit data
-        for path in path_format_strings:
+        for path in path_strings:
             csv_utilities.save_class_list_to_csv(
-                path.format(region=region),
+                path,
                 matches,
                 with_header=True,
                 header_strip_str="_",
             )
 
     directory_file_dict = {
-        "./product/players": "tft_players.csv",
-        "./product/matches": "tft_matches.csv",
-        "./product/match_players": "tft_match_players.csv",
-        "./product/match_augments": "tft_match_augments.csv",
-        "./product/match_traits": "tft_match_traits.csv",
-        "./product/match_units": "tft_match_units.csv",
+        f"{relative_path}/{match_table}": f"tft_{match_table}.csv"
+        for match_table in match_table_names
     }
 
     # merge csv files

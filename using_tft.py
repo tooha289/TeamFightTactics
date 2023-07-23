@@ -4,6 +4,10 @@ import csv_utilities
 import logging
 
 if __name__ == "__main__":
+    scraper = TftScraper()
+    riot_api_adaptor = RiotApiAdaptor("")
+    tft_data_handler = TftDataHandler(riot_api_adaptor)
+
     LOGGING_FORMAT = "%(asctime)s %(levelname)-8s %(name)-15s %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=LOGGING_FORMAT)
 
@@ -13,22 +17,16 @@ if __name__ == "__main__":
     # Create a file handler
     debug_file_handler = logging.FileHandler("./logs/debug_logfile.log")
     debug_file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
-    debug_file_handler.addFilter(debug_filter) 
+    debug_file_handler.addFilter(debug_filter)
 
     warn_file_handler = logging.FileHandler("./logs/warn_logfile.log")
     warn_file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
-
-    root_logger = logging.getLogger()
-    root_logger.addHandler(debug_file_handler)
-
-    scraper = TftScraper()
-    riot_api_adaptor = RiotApiAdaptor("")
-    tft_data_handler = TftDataHandler(riot_api_adaptor)
+    warn_file_handler.setLevel(logging.WARN)
 
     loggers = [scraper.logger, riot_api_adaptor.logger, tft_data_handler.logger]
     for logger in loggers:
+        logger.addHandler(debug_file_handler)
         logger.addHandler(warn_file_handler)
-        logger.setLevel(logging.WARN)
 
     regions = [
         "BR",
@@ -53,7 +51,7 @@ if __name__ == "__main__":
 
     # Format string arguments for the path.
     relative_path = "./product"
-    match_table_names = [
+    table_names = [
         "matches",
         "match_players",
         "match_augments",
@@ -109,7 +107,7 @@ if __name__ == "__main__":
 
         path_strings = [
             f"{relative_path}/{match_table}/tft_{match_table}_{region}.csv"
-            for match_table in match_table_names
+            for match_table in table_names
         ]
 
         # stroe Match, MatchPlayer, MatchAugment, MatchTrait, MatchUnit data
@@ -121,9 +119,11 @@ if __name__ == "__main__":
                 header_strip_str="_",
             )
 
+    table_names.append("players")
+
     directory_file_dict = {
         f"{relative_path}/{match_table}": f"tft_{match_table}.csv"
-        for match_table in match_table_names
+        for match_table in table_names
     }
 
     # merge csv files

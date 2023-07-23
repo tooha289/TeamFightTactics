@@ -7,9 +7,28 @@ if __name__ == "__main__":
     LOGGING_FORMAT = "%(asctime)s %(levelname)-8s %(name)-15s %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=LOGGING_FORMAT)
 
+    # Define debug filter
+    debug_filter = lambda record: record.levelno == logging.DEBUG
+
+    # Create a file handler
+    debug_file_handler = logging.FileHandler("./logs/debug_logfile.log")
+    debug_file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
+    debug_file_handler.addFilter(debug_filter) 
+
+    warn_file_handler = logging.FileHandler("./logs/warn_logfile.log")
+    warn_file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
+
+    root_logger = logging.getLogger()
+    root_logger.addHandler(debug_file_handler)
+
     scraper = TftScraper()
     riot_api_adaptor = RiotApiAdaptor("")
     tft_data_handler = TftDataHandler(riot_api_adaptor)
+
+    loggers = [scraper.logger, riot_api_adaptor.logger, tft_data_handler.logger]
+    for logger in loggers:
+        logger.addHandler(warn_file_handler)
+        logger.setLevel(logging.WARN)
 
     regions = [
         "BR",
@@ -30,7 +49,7 @@ if __name__ == "__main__":
         "VN",
     ]
 
-    slected_region = ["BR", "KR"]
+    slected_region = ["KR"]
 
     # Format string arguments for the path.
     relative_path = "./product"

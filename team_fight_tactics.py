@@ -6,92 +6,29 @@ Date Created: 2023/07/17
 """
 from tft_models import *
 from utility import pad_list
-from pprint import pprint
-from typing import Iterable, Optional
-from bs4 import BeautifulSoup
+from typing import Iterable, Optional, Tuple
 import logging
 import requests
-import random
 import time
 
 REGIONS_INFO = {
-    "BR": ["AMERICAS", "BR1"],
-    "EUNE": ["EUROPE", "EUN1"],
-    "EUW": ["EUROPE", "EUW1"],
-    "JP": ["ASIA", "JP1"],
-    "KR": ["ASIA", "KR"],
-    "LAN": ["AMERICAS", "LA1"],
-    "LAS": ["AMERICAS", "LA2"],
-    "NA": ["AMERICAS", "NA1"],
-    "OCE": ["SEA", "OC1"],
-    "PH": ["SEA", "PH2"],
-    "RU": ["EUROPE", "RU"],
-    "SG": ["SEA", "SG2"],
-    "TH": ["SEA", "TH2"],
-    "TR": ["EUROPE", "TR1"],
-    "TW": ["SEA", "TW2"],
-    "VN": ["SEA", "VN2"],
+    "BR1": "AMERICAS",
+    "EUNE1": "EUROPE",
+    "EUW1": "EUROPE",
+    "JP1": "ASIA",
+    "KR": "ASIA",
+    "LA1": "AMERICAS",
+    "LA2": "AMERICAS",
+    "NA1": "AMERICAS",
+    "OC1": "SEA",
+    "PH2": "SEA",
+    "RU": "EUROPE",
+    "SG2": "SEA",
+    "TH2": "SEA",
+    "TR1": "EUROPE",
+    "TW2": "SEA",
+    "VN2": "SEA",
 }
-
-
-class TftScraper(object):
-    def __init__(self) -> None:
-        self._logger = logging.getLogger("team_fight_tactics.TftScraper")
-        self._lolchessgg_url = "https://lolchess.gg/leaderboards"
-        self._header = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Whale/3.21.192.18 Safari/537.36"
-        }
-        self._ssesion = requests.Session()
-        self._ssesion.headers.update(self._header)
-
-    @property
-    def logger(self):
-        return self._logger
-
-    def get_top_players_without_puuid(self, start, end, *regions):
-        """Get player info from "lolchess.gg" site. However, no puuid information is provided.
-
-        Args:
-            start: The starting rank of the range of players to get. The minimum value is 1.
-            end: The last rank of the range of players to get. The maximum value is 100.
-            regions: A variable parameter of the player region to get.
-            example> BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, TR, RU, PH, SG, TH, TW, VN
-        """
-        players = []
-        params = {"mode": "ranked"}
-        selector_table_rows = (
-            "#wrapper > div.leaderboards.container > table > tbody > tr > td.summoner"
-        )
-        for region in regions:
-            region = region.upper()
-            params["region"] = region
-            response = self._ssesion.get(self._lolchessgg_url, params=params)
-            self._logger.debug(f"get_top_players_without_puuid: {response.status_code}")
-
-            bs = BeautifulSoup(response.content, "html.parser")
-            table_rows = bs.select(selector_table_rows)
-            table_rows = table_rows[start - 1 : end]
-
-            for table_row in table_rows:
-                player_name = table_row.select_one("a").get_text().strip()
-                player_rank = (
-                    table_row.select_one("span.rank")
-                    .get_text()
-                    .strip()
-                    .replace("#", "")
-                )
-                player = Player("", player_name, *REGIONS_INFO[region], player_rank)
-                players.append(player)
-
-            time.sleep(random.randint(1, 3))
-
-        return players
-
-    def __repr__(self) -> str:
-        return super.__repr__()
-
-    def __str__(self) -> str:
-        return self.__repr__()
 
 
 class RiotApiAdaptor(object):
@@ -99,6 +36,9 @@ class RiotApiAdaptor(object):
         self._logger = logging.getLogger("team_fight_tactics.RiotApiAdaptor")
 
         self._api_key = api_key
+        self._url_get_challenger_leauge = (
+            "https://{region}.api.riotgames.com/tft/league/v1/challenger"
+        )
         self._url_get_player_by_name = "https://{region}.api.riotgames.com/tft/summoner/v1/summoners/by-name/{name}"
         self._url_get_match_ids_by_puuid = "https://{continent}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids"
         self._url_get_matches_by_match_id = (
@@ -117,6 +57,25 @@ class RiotApiAdaptor(object):
     @api_key.setter
     def api_key(self, value):
         self._api_key = value
+
+    def get_challenger_league(self, region) -> requests.models.Response:
+        """Get the challenger league.
+
+        Args:
+            region: This is the region information of the server the player belongs to.
+            example> BR1, EUN1, EUW1, JP1, KR, LA1, LA2, NA1, OC1, TR1, RU, PH2, SG2, TH2, TW2, VN2
+        """
+        url = self._url_get_challenger_leauge.format(region=region)
+        try:
+            response = requests.get(url, headers=self._headers)
+            self._logger.debug(f"get_challenger_league: {response.status_code}")
+        except Exception as e:
+            print(e)
+            self._logger.exception(e)
+            return None
+
+        time.sleep(2)
+        return response
 
     def get_player_by_player_name(self, region, name) -> requests.models.Response:
         """Get player info by name.
@@ -201,7 +160,7 @@ class RiotApiAdaptor(object):
 
 class TftDataHandler(object):
     def __init__(self, riot_api_adaptor: RiotApiAdaptor) -> None:
-        self._logger = logging.getLogger(f"team_fight_tactics.TftDataBuilder")
+        self._logger = logging.getLogger(f"team_fight_tactics.TftDataHandler")
         self._riot_api_adaptor = riot_api_adaptor
 
     @property
@@ -230,8 +189,61 @@ class TftDataHandler(object):
             except Exception as e:
                 print(e)
                 self._logger.exception(e)
-                
+
         return new_players
+
+    def get_player_classes_from(
+        self, league_json, region, start=1, end=10
+    ) -> Tuple[Iterable[Player], Iterable[PlayerStatistic]]:
+        """Get players and player statistics via league info in json format.
+        Args:
+            league_json: This is the league_json containing information about the league participants.
+            region: This is the region information of the server the player belongs to.
+            example> BR1, EUN1, EUW1, JP1, KR, LA1, LA2, NA1, OC1, TR1, RU, PH2, SG2, TH2, TW2, VN2
+            start:The first rank in the league for the player you want to return.
+            end:The last rank in the league for the player you want to return.
+        """
+        try:
+            entries = league_json["entries"]
+
+            entries = sorted(entries, key=lambda x: x["leaguePoints"], reverse=True)
+            entries = entries[start - 1 : end]
+            players = []
+            player_statistics = []
+            update_time = int(time.time())
+
+            for ranking, entry in enumerate(entries):
+                name = entry["summonerName"]
+                response = self._riot_api_adaptor.get_player_by_player_name(
+                    region, name
+                )
+                puuid = response.json()["puuid"]
+
+                instance_value = {
+                    "puuid": puuid,
+                    "name": name,
+                    "continent": REGIONS_INFO[region],
+                    "region": region,
+                }
+                player = Player(**instance_value)
+                players.append(player)
+
+                instance_value = {
+                    "puuid": puuid,
+                    "ranking": ranking + 1,
+                    "league_point": entry["leaguePoints"],
+                    "wins": entry["wins"],
+                    "losses": entry["losses"],
+                    "update_time": update_time,
+                }
+                player_statistic = PlayerStatistic(**instance_value)
+                player_statistics.append(player_statistic)
+
+            return players, player_statistics
+        except Exception as e:
+            print(e)
+            self._logger.exception(e)
+            return None
 
     def get_matches_from(self, match_json) -> Optional[Match]:
         try:

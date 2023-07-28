@@ -1,10 +1,9 @@
 from os.path import join
-from team_fight_tactics import TftScraper, RiotApiAdaptor, TftDataHandler
+from team_fight_tactics import RiotApiAdaptor, TftDataHandler
 import csv_utilities
 import logging
 
 if __name__ == "__main__":
-    scraper = TftScraper()
     riot_api_adaptor = RiotApiAdaptor("")
     tft_data_handler = TftDataHandler(riot_api_adaptor)
 
@@ -23,31 +22,31 @@ if __name__ == "__main__":
     warn_file_handler.setFormatter(logging.Formatter(LOGGING_FORMAT))
     warn_file_handler.setLevel(logging.WARN)
 
-    loggers = [scraper.logger, riot_api_adaptor.logger, tft_data_handler.logger]
+    loggers = [riot_api_adaptor.logger, tft_data_handler.logger]
     for logger in loggers:
         logger.addHandler(debug_file_handler)
         logger.addHandler(warn_file_handler)
 
     regions = [
-        "BR",
-        "EUNE",
-        "EUW",
-        "JP",
+        "BR1",
+        "EUNE1",
+        "EUW1",
+        "JP1",
         "KR",
-        "LAN",
-        "LAS",
-        "NA",
-        "OCE",
-        "PH",
+        "LA1",
+        "LA2",
+        "NA1",
+        "OC1",
+        "PH2",
         "RU",
-        "SG",
-        "TH",
-        "TR",
-        "TW",
-        "VN",
+        "SG2",
+        "TH2",
+        "TR1",
+        "TW2",
+        "VN2",
     ]
 
-    slected_region = regions[15:]
+    slected_region = ["KR"]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -62,10 +61,13 @@ if __name__ == "__main__":
 
     for region in slected_region:
         start_ranking = 1
-        end_ranking = 10
+        end_ranking = 2
 
-        players = tft_data_handler.get_players_with_puuid(
-            scraper.get_top_players_without_puuid(start_ranking, end_ranking, region)
+        players, player_statistics = tft_data_handler.get_player_classes_from(
+            riot_api_adaptor.get_challenger_league(region).json(),
+            region,
+            start_ranking,
+            end_ranking,
         )
         # store player data
         csv_utilities.save_class_list_to_csv(
@@ -120,6 +122,7 @@ if __name__ == "__main__":
             )
 
     table_names.append("players")
+    table_names.append("player_statistics")
 
     directory_file_dict = {
         f"{relative_path}/{match_table}": f"tft_{match_table}.csv"

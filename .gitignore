@@ -7,3 +7,4 @@ product/**/*.csv
 # Ignore .log files everywhere
 *.log
 *.pyc
+*.zip

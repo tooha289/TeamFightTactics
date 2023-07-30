@@ -175,8 +175,16 @@ class Match(object):
 
 class MatchPlayer(object):
     def __init__(
-        self, match_id, puuid, last_round, level, placement, time_eliminated
+        self,
+        match_player_id,
+        match_id,
+        puuid,
+        last_round,
+        level,
+        placement,
+        time_eliminated,
     ) -> None:
+        self._match_player_id = match_player_id
         self._match_id = match_id
         self._puuid = puuid
         self._last_round = last_round
@@ -184,11 +192,13 @@ class MatchPlayer(object):
         self._placement = placement
         self._time_eliminated = time_eliminated
 
-        self._match_player_id = "_".join(self._match_id, self._placement)
-
     @property
     def match_player_id(self):
         return self._match_player_id
+
+    @match_player_id.setter
+    def match_player_id(self, value):
+        self._match_player_id = value
 
     @property
     def match_id(self):
@@ -286,7 +296,6 @@ class MatchTrait(object):
     def __init__(
         self,
         match_player_id,
-        puuid,
         name,
         num_units,
         style,
@@ -295,7 +304,6 @@ class MatchTrait(object):
         sequence,
     ) -> None:
         self._match_player_id = match_player_id
-        self._puuid = puuid
         self._name = name
         self._num_units = num_units
         self._style = style
@@ -376,10 +384,17 @@ class MatchTrait(object):
 
 class MatchUnit(object):
     def __init__(
-        self, match_player_id, puuid, unit_id, rarity, tier, sequence, item1, item2, item3
+        self,
+        match_player_id,
+        unit_id,
+        rarity,
+        tier,
+        sequence,
+        item1,
+        item2,
+        item3,
     ) -> None:
         self._match_player_id = match_player_id
-        self._puuid = puuid
         self._unit_id = unit_id
         self._rarity = rarity
         self._tier = tier

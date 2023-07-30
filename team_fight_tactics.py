@@ -13,7 +13,7 @@ import time
 
 REGIONS_INFO = {
     "BR1": "AMERICAS",
-    "EUNE1": "EUROPE",
+    "EUN1": "EUROPE",
     "EUW1": "EUROPE",
     "JP1": "ASIA",
     "KR": "ASIA",
@@ -254,6 +254,7 @@ class TftDataHandler(object):
                 "match_id": metadata["match_id"],
                 "match_datetime": info["game_datetime"],
                 "match_length": info["game_length"],
+                "match_version": info["game_version"],
                 "tft_set_number": info["tft_set_number"],
             }
             match = Match(**instance_value)
@@ -273,14 +274,19 @@ class TftDataHandler(object):
             match_id = metadata["match_id"]
             match_players = []
             for participant in participants:
+                placement = participant["placement"]
+                match_player_id = f"{match_id}_{placement}"
+
                 instance_value = {
+                    "match_player_id": match_player_id,
+                    "match_id": match_id,
                     "puuid": participant["puuid"],
                     "last_round": participant["last_round"],
                     "level": participant["level"],
-                    "placement": participant["placement"],
+                    "placement": placement,
                     "time_eliminated": participant["time_eliminated"],
                 }
-                match_player = MatchPlayer(match_id=match_id, **instance_value)
+                match_player = MatchPlayer(**instance_value)
                 match_players.append(match_player)
 
             return match_players
@@ -299,12 +305,13 @@ class TftDataHandler(object):
             match_id = metadata["match_id"]
             match_augments = []
             for participant in participants:
-                puuid = participant["puuid"]
+                placement = participant["placement"]
                 augments = participant["augments"]
+                match_player_id = f"{match_id}_{placement}"
+
                 for i, augment in enumerate(augments):
                     instance_value = {
-                        "match_id": match_id,
-                        "puuid": puuid,
+                        "match_player_id": match_player_id,
                         "name": augment,
                         "sequence": i,
                     }
@@ -327,12 +334,13 @@ class TftDataHandler(object):
             match_id = metadata["match_id"]
             match_traits = []
             for participant in participants:
-                puuid = participant["puuid"]
+                placement = participant["placement"]
                 traits = participant["traits"]
+                match_player_id = f"{match_id}_{placement}"
+
                 for i, trait in enumerate(traits):
                     instance_value = {
-                        "match_id": match_id,
-                        "puuid": puuid,
+                        "match_player_id": match_player_id,
                         "name": trait["name"],
                         "num_units": trait["num_units"],
                         "style": trait["style"],
@@ -359,14 +367,15 @@ class TftDataHandler(object):
             match_id = metadata["match_id"]
             match_units = []
             for participant in participants:
-                puuid = participant["puuid"]
+                placement = participant["placement"]
                 units = participant["units"]
+                match_player_id = f"{match_id}_{placement}"
+
                 for i, unit in enumerate(units):
                     items = unit["itemNames"]
                     item1, item2, item3 = pad_list(items, 3, "")
                     instance_value = {
-                        "match_id": match_id,
-                        "puuid": puuid,
+                        "match_player_id": match_player_id,
                         "unit_id": unit["character_id"],
                         "rarity": unit["rarity"],
                         "tier": unit["tier"],

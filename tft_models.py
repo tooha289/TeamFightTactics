@@ -4,13 +4,14 @@ This module contains classes that TFT entities.
 Author: Chung seop, Shin
 Date Created: 2023/07/17
 """
+
+
 class Player(object):
-    def __init__(self, puuid, name, continent, region, ranking) -> None:
+    def __init__(self, puuid, name, continent, region) -> None:
         self._puuid = puuid
         self._name = name
         self._continent = continent
         self._region = region
-        self._ranking = ranking
 
     @property
     def puuid(self):
@@ -44,6 +45,30 @@ class Player(object):
     def region(self, value):
         self._region = value
 
+    def __repr__(self) -> str:
+        return f"{vars(self)}"
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+
+class PlayerStatistic(object):
+    def __init__(self, puuid, ranking, league_point, wins, losses, update_time) -> None:
+        self._puuid = puuid
+        self._ranking = ranking
+        self._league_point = league_point
+        self._wins = wins
+        self._losses = losses
+        self._update_time = update_time
+
+    @property
+    def puuid(self):
+        return self._puuid
+
+    @puuid.setter
+    def puuid(self, value):
+        self._puuid = value
+
     @property
     def ranking(self):
         return self._ranking
@@ -51,6 +76,38 @@ class Player(object):
     @ranking.setter
     def ranking(self, value):
         self._ranking = value
+
+    @property
+    def league_point(self):
+        return self._league_point
+
+    @league_point.setter
+    def league_point(self, value):
+        self._league_point = value
+
+    @property
+    def wins(self):
+        return self._wins
+
+    @wins.setter
+    def wins(self, value):
+        self._wins = value
+
+    @property
+    def losses(self):
+        return self._losses
+
+    @losses.setter
+    def losses(self, value):
+        self._losses = value
+
+    @property
+    def update_time(self):
+        return self._update_time
+
+    @update_time.setter
+    def update_time(self, value):
+        self._update_time = value
 
     def __repr__(self) -> str:
         return f"{vars(self)}"
@@ -60,10 +117,13 @@ class Player(object):
 
 
 class Match(object):
-    def __init__(self, match_id, match_datetime, match_length, tft_set_number) -> None:
+    def __init__(
+        self, match_id, match_datetime, match_length, match_version, tft_set_number
+    ) -> None:
         self._match_id = match_id
         self._match_datetime = match_datetime
         self._match_length = match_length
+        self._match_version = match_version
         self._tft_set_number = tft_set_number
 
     @property
@@ -91,6 +151,14 @@ class Match(object):
         self._match_length = value
 
     @property
+    def match_version(self):
+        return self._match_version
+
+    @match_version.setter
+    def match_version(self, value):
+        self._match_version = value
+
+    @property
     def tft_set_number(self):
         return self._tft_set_number
 
@@ -107,14 +175,30 @@ class Match(object):
 
 class MatchPlayer(object):
     def __init__(
-        self, match_id, puuid, last_round, level, placement, time_eliminated
+        self,
+        match_player_id,
+        match_id,
+        puuid,
+        last_round,
+        level,
+        placement,
+        time_eliminated,
     ) -> None:
+        self._match_player_id = match_player_id
         self._match_id = match_id
         self._puuid = puuid
         self._last_round = last_round
         self._level = level
         self._placement = placement
         self._time_eliminated = time_eliminated
+
+    @property
+    def match_player_id(self):
+        return self._match_player_id
+
+    @match_player_id.setter
+    def match_player_id(self, value):
+        self._match_player_id = value
 
     @property
     def match_id(self):
@@ -172,27 +256,18 @@ class MatchPlayer(object):
 
 
 class MatchAugment(object):
-    def __init__(self, match_id, puuid, name, sequence) -> None:
-        self._match_id = match_id
-        self._puuid = puuid
+    def __init__(self, match_player_id, name, sequence) -> None:
+        self._match_player_id = match_player_id
         self._name = name
         self._sequence = sequence
 
     @property
-    def match_id(self):
-        return self._match_id
+    def match_player_id(self):
+        return self._match_player_id
 
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
-
-    @property
-    def puuid(self):
-        return self._puuid
-
-    @puuid.setter
-    def puuid(self, value):
-        self._puuid = value
+    @match_player_id.setter
+    def match_player_id(self, value):
+        self._match_player_id = value
 
     @property
     def name(self):
@@ -220,8 +295,7 @@ class MatchAugment(object):
 class MatchTrait(object):
     def __init__(
         self,
-        match_id,
-        puuid,
+        match_player_id,
         name,
         num_units,
         style,
@@ -229,8 +303,7 @@ class MatchTrait(object):
         tier_total,
         sequence,
     ) -> None:
-        self._match_id = match_id
-        self._puuid = puuid
+        self._match_player_id = match_player_id
         self._name = name
         self._num_units = num_units
         self._style = style
@@ -239,12 +312,12 @@ class MatchTrait(object):
         self._sequence = sequence
 
     @property
-    def match_id(self):
-        return self._match_id
+    def match_player_id(self):
+        return self._match_player_id
 
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
+    @match_player_id.setter
+    def match_player_id(self, value):
+        self._match_player_id = value
 
     @property
     def puuid(self):
@@ -311,10 +384,17 @@ class MatchTrait(object):
 
 class MatchUnit(object):
     def __init__(
-        self, match_id, puuid, unit_id, rarity, tier, sequence, item1, item2, item3
+        self,
+        match_player_id,
+        unit_id,
+        rarity,
+        tier,
+        sequence,
+        item1,
+        item2,
+        item3,
     ) -> None:
-        self._match_id = match_id
-        self._puuid = puuid
+        self._match_player_id = match_player_id
         self._unit_id = unit_id
         self._rarity = rarity
         self._tier = tier
@@ -324,12 +404,12 @@ class MatchUnit(object):
         self._item3 = item3
 
     @property
-    def match_id(self):
-        return self._match_id
+    def match_player_id(self):
+        return self._match_player_id
 
-    @match_id.setter
-    def match_id(self, value):
-        self._match_id = value
+    @match_player_id.setter
+    def match_player_id(self, value):
+        self._match_player_id = value
 
     @property
     def puuid(self):

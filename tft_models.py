@@ -53,13 +53,13 @@ class Player(object):
 
 
 class PlayerStatistic(object):
-    def __init__(self, puuid, ranking, league_point, wins, losses, update_time) -> None:
+    def __init__(self, puuid, ranking, league_point, wins, losses, update_date) -> None:
         self._puuid = puuid
         self._ranking = ranking
         self._league_point = league_point
         self._wins = wins
         self._losses = losses
-        self._update_time = update_time
+        self._update_date = update_date
 
     @property
     def puuid(self):
@@ -102,12 +102,12 @@ class PlayerStatistic(object):
         self._losses = value
 
     @property
-    def update_time(self):
-        return self._update_time
+    def update_date(self):
+        return self._update_date
 
-    @update_time.setter
-    def update_time(self, value):
-        self._update_time = value
+    @update_date.setter
+    def update_date(self, value):
+        self._update_date = value
 
     def __repr__(self) -> str:
         return f"{vars(self)}"
@@ -118,10 +118,10 @@ class PlayerStatistic(object):
 
 class Match(object):
     def __init__(
-        self, match_id, match_datetime, match_length, match_version, tft_set_number
+        self, match_id, match_date, match_length, match_version, tft_set_number
     ) -> None:
         self._match_id = match_id
-        self._match_datetime = match_datetime
+        self._match_date = match_date
         self._match_length = match_length
         self._match_version = match_version
         self._tft_set_number = tft_set_number
@@ -135,12 +135,12 @@ class Match(object):
         self._match_id = value
 
     @property
-    def match_datetime(self):
-        return self._match_datetime
+    def match_date(self):
+        return self._match_date
 
-    @match_datetime.setter
-    def match_datetime(self, value):
-        self._match_datetime = value
+    @match_date.setter
+    def match_date(self, value):
+        self._match_date = value
 
     @property
     def match_length(self):
@@ -171,6 +171,84 @@ class Match(object):
 
     def __str__(self) -> str:
         return self.__repr__()
+
+
+class Version(object):
+    def __init__(self, version_id, major, minor, patch, build, release, update_date):
+        self._version_id = version_id
+        self._major = major
+        self._minor = minor
+        self._patch = patch
+        self._build = build
+        self._release = release
+        self._update_date = update_date
+
+    @property
+    def version_id(self):
+        return self._version_id
+
+    @version_id.setter
+    def version_id(self, value):
+        self._version_id = value
+
+    @property
+    def major(self):
+        return self._major
+
+    @major.setter
+    def major(self, value):
+        self._major = value
+
+    @property
+    def minor(self):
+        return self._minor
+
+    @minor.setter
+    def minor(self, value):
+        self._minor = value
+
+    @property
+    def patch(self):
+        return self._patch
+
+    @patch.setter
+    def patch(self, value):
+        self._patch = value
+
+    @property
+    def build(self):
+        return self._build
+
+    @build.setter
+    def build(self, value):
+        self._build = value
+
+    @property
+    def release(self):
+        return self._release
+
+    @release.setter
+    def release(self, value):
+        self._release = value
+
+    @property
+    def update_date(self):
+        return self._update_date
+
+    @update_date.setter
+    def update_date(self, value):
+        self._update_date = value
+
+    def __repr__(self) -> str:
+        return f"{vars(self)}"
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __eq__(self, other):
+        if not isinstance(other, Version):
+            return False
+        return self._version_id == other._version_id
 
 
 class MatchPlayer(object):

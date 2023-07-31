@@ -4,6 +4,7 @@ This module contains classes that collect TFT data, and handlers.
 Author: Chung seop, Shin
 Date Created: 2023/07/17
 """
+from datetime import datetime
 from tft_models import *
 from utility import pad_list
 from typing import Iterable, Optional, Tuple
@@ -211,6 +212,7 @@ class TftDataHandler(object):
             players = []
             player_statistics = []
             update_date = int(time.time())
+            update_date = str(datetime.fromtimestamp(update_date))
 
             for ranking, entry in enumerate(entries):
                 name = entry["summonerName"]
@@ -234,7 +236,7 @@ class TftDataHandler(object):
                     "league_point": entry["leaguePoints"],
                     "wins": entry["wins"],
                     "losses": entry["losses"],
-                    "update_date": update_date,
+                    "update_date": str(update_date),
                 }
                 player_statistic = PlayerStatistic(**instance_value)
                 player_statistics.append(player_statistic)
@@ -249,10 +251,12 @@ class TftDataHandler(object):
         try:
             metadata = match_json["metadata"]
             info = match_json["info"]
+            match_timestamp = info["game_datetime"]
+            match_date = str(datetime.fromtimestamp(match_timestamp//1000))
 
             instance_value = {
                 "match_id": metadata["match_id"],
-                "match_date": info["game_datetime"],
+                "match_date": str(match_date),
                 "match_length": info["game_length"],
                 "match_version": info["game_version"],
                 "tft_set_number": info["tft_set_number"],

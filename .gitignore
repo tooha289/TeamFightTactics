@@ -8,3 +8,4 @@ product/**/*.csv
 *.log
 *.pyc
 *.zip
+*.json

@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 
 from pyparsing import Iterable
@@ -57,6 +58,17 @@ def merge_csv_files_in_directory(directory_path, encoding="utf-8", with_header=F
     except Exception as e:
         print(e)
         return []
+
+
+def csv_to_json(csv_file_path, json_file_path, encoding="utf-8"):
+    data = []
+    with open(csv_file_path, "r", newline="", encoding=encoding) as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            data.append(row)
+
+    with open(json_file_path, "w", encoding=encoding) as json_file:
+        json.dump(data, json_file, indent=4)
 
 
 if __name__ == "__main__":

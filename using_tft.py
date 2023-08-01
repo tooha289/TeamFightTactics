@@ -1,4 +1,5 @@
 from datetime import date
+import os
 from os.path import join
 import time
 from team_fight_tactics import RiotApiAdaptor, TftDataHandler, REGIONS_INFO
@@ -33,7 +34,7 @@ if __name__ == "__main__":
 
     regions = REGIONS_INFO.keys()
 
-    slected_region = list(regions)[:]
+    slected_region = list(regions)[20:]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -114,10 +115,10 @@ if __name__ == "__main__":
                 with_header=True,
                 header_strip_str="_",
             )
-        
+
         # list initialization
-        match_tables = {key:[] for key in match_tables}
-        player_table = {key:[] for key in player_table}
+        match_tables = {key: [] for key in match_tables}
+        player_table = {key: [] for key in player_table}
 
     directory_file_dict = {
         f"{relative_path}/{table_name}": f"tft_{table_name}_{str(date.today().strftime('%Y%m%d'))}.csv"
@@ -125,6 +126,19 @@ if __name__ == "__main__":
     }
 
     # merge csv files
-    for directory, file_name in directory_file_dict.items():
-        lines = csv_utilities.merge_csv_files_in_directory(directory, with_header=True)
-        csv_utilities.save_csv_file(join(relative_path, "results", file_name), lines)
+    # for directory, file_name in directory_file_dict.items():
+    #     lines = csv_utilities.merge_csv_files_in_directory(directory, with_header=True)
+    #     csv_utilities.save_csv_file(join(relative_path, "results", file_name), lines)
+
+    # csv to json
+    directory_path = "./product/results"
+    csv_file_list = [
+        join(directory_path, file)
+        for file in os.listdir(directory_path)
+        if file.endswith(".csv")
+    ]
+    json_file_list = [file.replace("csv", "json") for file in csv_file_list]
+    file_path_list = zip(csv_file_list, json_file_list)
+    for csv_file, json_file in file_path_list:
+        csv_utilities.csv_to_json(csv_file, json_file)
+    print()

@@ -464,7 +464,7 @@ class MatchUnit(object):
     def __init__(
         self,
         match_player_id,
-        unit_id,
+        name,
         rarity,
         tier,
         sequence,
@@ -473,7 +473,7 @@ class MatchUnit(object):
         item3,
     ) -> None:
         self._match_player_id = match_player_id
-        self._unit_id = unit_id
+        self._name = name
         self._rarity = rarity
         self._tier = tier
         self._sequence = sequence
@@ -498,12 +498,12 @@ class MatchUnit(object):
         self._puuid = value
 
     @property
-    def unit_id(self):
-        return self._unit_id
+    def name(self):
+        return self._name
 
-    @unit_id.setter
-    def unit_id(self, value):
-        self._unit_id = value
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def rarity(self):

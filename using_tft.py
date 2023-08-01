@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     regions = REGIONS_INFO.keys()
 
-    slected_region = regions
+    slected_region = list(regions)[:]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     for region in slected_region:
         start_ranking = 1
-        end_ranking = 1
+        end_ranking = 10
 
         (
             player_table["players"],
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         match_ids = set()
         continent = player_table["players"][0].continent
         start_index = 0
-        match_count = 1
+        match_count = 10
 
         for player in player_table["players"]:
             response = riot_api_adaptor.get_match_ids_by_puuid(
@@ -114,6 +114,10 @@ if __name__ == "__main__":
                 with_header=True,
                 header_strip_str="_",
             )
+        
+        # list initialization
+        match_tables = {key:[] for key in match_tables}
+        player_table = {key:[] for key in player_table}
 
     directory_file_dict = {
         f"{relative_path}/{table_name}": f"tft_{table_name}_{str(date.today().strftime('%Y%m%d'))}.csv"

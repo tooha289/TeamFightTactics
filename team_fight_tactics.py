@@ -380,7 +380,7 @@ class TftDataHandler(object):
                     item1, item2, item3 = pad_list(items, 3, "")
                     instance_value = {
                         "match_player_id": match_player_id,
-                        "unit_id": unit["character_id"],
+                        "name": unit["character_id"],
                         "rarity": unit["rarity"],
                         "tier": unit["tier"],
                         "sequence": i,

@@ -40,6 +40,7 @@ class RiotApiAdaptor(object):
         self._url_get_challenger_leauge = (
             "https://{region}.api.riotgames.com/tft/league/v1/challenger"
         )
+        self._url_get_player_by_puuid = "https://{region}.api.riotgames.com/tft/summoner/v1/summoners/by-puuid/{puuid}"
         self._url_get_player_by_name = "https://{region}.api.riotgames.com/tft/summoner/v1/summoners/by-name/{name}"
         self._url_get_match_ids_by_puuid = "https://{continent}.api.riotgames.com/tft/match/v1/matches/by-puuid/{puuid}/ids"
         self._url_get_matches_by_match_id = (
@@ -70,6 +71,26 @@ class RiotApiAdaptor(object):
         try:
             response = requests.get(url, headers=self._headers)
             self._logger.debug(f"get_challenger_league: {response.status_code}")
+        except Exception as e:
+            print(e)
+            self._logger.exception(e)
+            return None
+
+        time.sleep(2)
+        return response
+
+    def get_player_by_player_puuid(self, region, puuid) -> requests.models.Response:
+        """Get player info by puuid.
+
+        Args:
+            region: This is the region information of the server the player belongs to.
+            example> BR1, EUN1, EUW1, JP1, KR, LA1, LA2, NA1, OC1, TR1, RU, PH2, SG2, TH2, TW2, VN2
+            name: This is the player's name.
+        """
+        url = self._url_get_player_by_puuid.format(region=region, puuid=puuid)
+        try:
+            response = requests.get(url, headers=self._headers)
+            self._logger.debug(f"get_player_by_player_puuid: {response.status_code}")
         except Exception as e:
             print(e)
             self._logger.exception(e)
@@ -247,12 +268,30 @@ class TftDataHandler(object):
             self._logger.exception(e)
             return None
 
+    def get_players_from(self, match_json) -> Iterable[Player]:
+        try:
+            metadata = match_json["metadata"]
+            match_id = metadata["match_id"]
+            region = match_id.split("_")[0]
+            participants = metadata["participants"]
+
+            players = []
+            for puuid in participants:
+                player = Player(puuid, "", REGIONS_INFO[region], region)
+                players.append(player)
+
+            return players
+        except Exception as e:
+            print(e)
+            self._logger.exception(e)
+            return None
+
     def get_matches_from(self, match_json) -> Optional[Match]:
         try:
             metadata = match_json["metadata"]
             info = match_json["info"]
             match_timestamp = info["game_datetime"]
-            match_date = str(datetime.fromtimestamp(match_timestamp//1000))
+            match_date = str(datetime.fromtimestamp(match_timestamp // 1000))
 
             instance_value = {
                 "match_id": metadata["match_id"],

@@ -1,10 +1,12 @@
 from datetime import date
+import json
 import os
 from os.path import join
 import time
 from team_fight_tactics import RiotApiAdaptor, TftDataHandler, REGIONS_INFO
 import csv_utilities
 import logging
+from tft_models import Player
 from utility import create_directories
 
 if __name__ == "__main__":
@@ -32,9 +34,19 @@ if __name__ == "__main__":
         logger.addHandler(debug_file_handler)
         logger.addHandler(warn_file_handler)
 
+    # load existing player list
+    players_json_path = "./product/results/tft_players.json"
+    existing_players = set()
+    if os.path.exists(players_json_path):
+        with open(players_json_path, "r") as file:
+            data = json.load(file)
+        for item in data:
+            player = Player(**item)
+            existing_players.add(player)
+
     regions = REGIONS_INFO.keys()
 
-    slected_region = list(regions)[20:]
+    slected_region = list(regions)[:]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -45,7 +57,7 @@ if __name__ == "__main__":
         "match_traits": [],
         "match_units": [],
     }
-    player_table = {"players": [], "player_statistics": []}
+    player_table = {"players": set(), "player_statistics": []}
     total_table_names = [*match_tables] + [*player_table]
 
     # Create product directories
@@ -65,18 +77,12 @@ if __name__ == "__main__":
             start_ranking,
             end_ranking,
         )
-        # store player data
-        for table_name, table in player_table.items():
-            csv_utilities.save_class_list_to_csv(
-                f"{relative_path}/{table_name}/tft_{table_name}_{region}.csv",
-                table,
-                with_header=True,
-                header_strip_str="_",
-            )
+        player_table["players"] = set(player_table["players"])
 
         matches_json = []
         match_ids = set()
-        continent = player_table["players"][0].continent
+        continent = next(iter(player_table["players"])).continent
+
         start_index = 0
         match_count = 10
 
@@ -85,12 +91,16 @@ if __name__ == "__main__":
                 player.continent, player.puuid, start_index, match_count
             )
             match_ids.update(response.json())
+        # clear players
+        player_table["players"].clear()
 
         for match_id in match_ids:
             response = riot_api_adaptor.get_matches_by_match_id(continent, match_id)
             matches_json.append(response.json())
 
         for match_json in matches_json:
+            players = tft_data_handler.get_players_from(match_json)
+            player_table["players"].update([player for player in players if player not in existing_players])
             match_tables["matches"].append(
                 tft_data_handler.get_matches_from(match_json)
             )
@@ -107,6 +117,35 @@ if __name__ == "__main__":
                 tft_data_handler.get_match_units_from(match_json)
             )
 
+        # add name information
+        for player in player_table["players"]:
+            if player.name != "":
+                continue
+            player_json = riot_api_adaptor.get_player_by_player_puuid(
+                region, player.puuid
+            ).json()
+            player_name = player_json["name"]
+            player.name = player_name
+
+        # store player data
+        for table_name, table in player_table.items():
+            if table_name == "players":
+                path = f"{relative_path}/results/tft_{table_name}.csv"
+                mode = "w"
+                is_header = True
+                if os.path.exists(path):
+                    mode = "a"
+                    is_header = False
+                csv_utilities.save_class_list_to_csv(
+                    path, table, with_header=is_header, header_strip_str="_", mode=mode
+                )
+            csv_utilities.save_class_list_to_csv(
+                f"{relative_path}/{table_name}/tft_{table_name}_{region}.csv",
+                table,
+                with_header=True,
+                header_strip_str="_",
+            )
+
         # stroe Match, MatchPlayer, MatchAugment, MatchTrait, MatchUnit data
         for table_name, table in match_tables.items():
             csv_utilities.save_class_list_to_csv(
@@ -118,7 +157,7 @@ if __name__ == "__main__":
 
         # list initialization
         match_tables = {key: [] for key in match_tables}
-        player_table = {key: [] for key in player_table}
+        player_table = {"players": set(), "player_statistics": []}
 
     directory_file_dict = {
         f"{relative_path}/{table_name}": f"tft_{table_name}_{str(date.today().strftime('%Y%m%d'))}.csv"
@@ -126,9 +165,9 @@ if __name__ == "__main__":
     }
 
     # merge csv files
-    # for directory, file_name in directory_file_dict.items():
-    #     lines = csv_utilities.merge_csv_files_in_directory(directory, with_header=True)
-    #     csv_utilities.save_csv_file(join(relative_path, "results", file_name), lines)
+    for directory, file_name in directory_file_dict.items():
+        lines = csv_utilities.merge_csv_files_in_directory(directory, with_header=True)
+        csv_utilities.save_csv_file(join(relative_path, "results", file_name), lines)
 
     # csv to json
     directory_path = "./product/results"

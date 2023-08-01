@@ -51,6 +51,14 @@ class Player(object):
     def __str__(self) -> str:
         return self.__repr__()
 
+    def __hash__(self):
+        return hash(self._puuid)
+
+    def __eq__(self, other):
+        if not isinstance(other, Player):
+            return False
+        return self._puuid == other._puuid
+
 
 class PlayerStatistic(object):
     def __init__(self, puuid, ranking, league_point, wins, losses, update_date) -> None:

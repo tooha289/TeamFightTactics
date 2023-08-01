@@ -25,7 +25,7 @@ def save_class_list_to_csv(
         return []
     records = [vars(instance).values() for instance in class_list]
     if with_header:
-        header = [key.strip(header_strip_str) for key in vars(class_list[0]).keys()]
+        header = [key.strip(header_strip_str) for key in vars(next(iter(class_list))).keys()]
         records.insert(0, header)
     save_csv_file(path, records, mode=mode, encoding=encoding)
 

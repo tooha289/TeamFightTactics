@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     regions = REGIONS_INFO.keys()
 
-    slected_region = list(regions)[:]
+    slected_region = list(regions)[-1:]
 
     # Format string arguments for the path.
     relative_path = "./product"

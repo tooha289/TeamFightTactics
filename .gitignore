@@ -6,6 +6,8 @@ product/**/*.csv
 
 # Ignore .log files everywhere
 *.log
+
+# Ignore extensions
 *.pyc
 *.zip
 *.json

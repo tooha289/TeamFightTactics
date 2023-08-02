@@ -5,6 +5,7 @@ Author: Chung seop, Shin
 Date Created: 2023/07/17
 """
 from datetime import datetime
+import re
 from tft_models import *
 from utility import pad_list
 from typing import Iterable, Optional, Tuple
@@ -293,11 +294,25 @@ class TftDataHandler(object):
             match_timestamp = info["game_datetime"]
             match_date = str(datetime.fromtimestamp(match_timestamp // 1000))
 
+            match_version= info["game_version"]
+            pattern = r"\((.*?)\)"
+
+            version = match_version.split(" ")[1]
+            version_major, version_minor, version_patch, _ = version.split(".")
+            match = re.search(pattern, match_version)
+            if match:
+                 version_date = match.group(1)
+            version_date = datetime.strptime(version_date, "%b %d %Y/%H:%M:%S")
+            version_date = version_date.strftime("%Y-%m-%d %H:%M:%S")
+
             instance_value = {
                 "match_id": metadata["match_id"],
                 "match_date": str(match_date),
                 "match_length": info["game_length"],
-                "match_version": info["game_version"],
+                "version_major": version_major,
+                "version_minor": version_minor,
+                "version_patch": version_patch,
+                "version_date": version_date,
                 "tft_set_number": info["tft_set_number"],
             }
             match = Match(**instance_value)

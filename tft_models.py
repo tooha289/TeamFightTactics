@@ -126,12 +126,23 @@ class PlayerStatistic(object):
 
 class Match(object):
     def __init__(
-        self, match_id, match_date, match_length, match_version, tft_set_number
+        self,
+        match_id,
+        match_date,
+        match_length,
+        version_major,
+        version_minor,
+        version_patch,
+        version_date,
+        tft_set_number,
     ) -> None:
         self._match_id = match_id
         self._match_date = match_date
         self._match_length = match_length
-        self._match_version = match_version
+        self._version_major = version_major
+        self._version_minor = version_minor
+        self._version_patch = version_patch
+        self._version_date = version_date
         self._tft_set_number = tft_set_number
 
     @property
@@ -159,12 +170,36 @@ class Match(object):
         self._match_length = value
 
     @property
-    def match_version(self):
-        return self._match_version
+    def version_major(self):
+        return self._version_major
 
-    @match_version.setter
-    def match_version(self, value):
-        self._match_version = value
+    @version_major.setter
+    def version_major(self, value):
+        self._version_major = value
+
+    @property
+    def version_minor(self):
+        return self._version_minor
+
+    @version_minor.setter
+    def version_minor(self, value):
+        self._version_minor = value
+
+    @property
+    def version_patch(self):
+        return self._version_patch
+
+    @version_patch.setter
+    def version_patch(self, value):
+        self._version_patch = value
+
+    @property
+    def version_date(self):
+        return self._version_date
+
+    @version_date.setter
+    def version_date(self, value):
+        self._version_date = value
 
     @property
     def tft_set_number(self):

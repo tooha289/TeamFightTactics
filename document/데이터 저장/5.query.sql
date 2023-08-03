@@ -39,7 +39,7 @@ GROUP BY continent, region
 ORDER BY 3 DESC;
 
 -- 버전 별, 사용된 유닛의 수를 rarity로 정렬
--- 질문1. Ryze는 동일 유닛인데 합칠 수 있는 방법
+-- 질문1. Ryze는 동일 유닛인데 합칠 수 있는 방법이 있을까?
 SELECT m.version_major, m.version_minor, m.version_patch, mu.name, mu.rarity, count(*) num_of_unit
 FROM tftdb.match m INNER JOIN match_player mp ON m.match_id = mp.match_id
 				   INNER JOIN match_unit mu ON mp.match_player_id = mu.match_player_id
@@ -93,13 +93,13 @@ GROUP BY m.version_major, m.version_minor, m.version_patch, mu.name;
 
 -- 하이머딩거는 사용했지만 하이머딩거 포탑은 없는 사람들
 WITH use_heimerdinger AS(
-	SELECT match_player_id
-	FROM match_unit mu
-	WHERE mu.name = 'TFT9_Heimerdinger'),
+SELECT match_player_id
+FROM match_unit mu
+WHERE mu.name = 'TFT9_Heimerdinger'),
 use_heimerdinger_turret AS(
-	SELECT match_player_id
-	FROM match_unit mu
-	WHERE mu.name = 'TFT9_HeimerdingerTurret')
+SELECT match_player_id
+FROM match_unit mu
+WHERE mu.name = 'TFT9_HeimerdingerTurret')
 
 SELECT uh.match_player_id
 FROM use_heimerdinger uh

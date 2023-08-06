@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     regions = REGIONS_INFO.keys()
 
-    slected_region = list(regions)[-1:]
+    slected_region = list(regions)[:]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     for region in slected_region:
         start_ranking = 1
-        end_ranking = 1
+        end_ranking = 10
 
         (
             player_table["players"],
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         continent = next(iter(player_table["players"])).continent
 
         start_index = 0
-        match_count = 1
+        match_count = 10
 
         for player in player_table["players"]:
             response = riot_api_adaptor.get_match_ids_by_puuid(

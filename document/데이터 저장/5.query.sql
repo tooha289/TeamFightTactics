@@ -93,13 +93,13 @@ GROUP BY m.version_major, m.version_minor, m.version_patch, mu.name;
 
 -- 하이머딩거는 사용했지만 하이머딩거 포탑은 없는 사람들
 WITH use_heimerdinger AS(
-SELECT match_player_id
-FROM match_unit mu
-WHERE mu.name = 'TFT9_Heimerdinger'),
+	SELECT match_player_id
+	FROM match_unit mu
+	WHERE mu.name = 'TFT9_Heimerdinger'),
 use_heimerdinger_turret AS(
-SELECT match_player_id
-FROM match_unit mu
-WHERE mu.name = 'TFT9_HeimerdingerTurret')
+	SELECT match_player_id
+	FROM match_unit mu
+	WHERE mu.name = 'TFT9_HeimerdingerTurret')
 
 SELECT uh.match_player_id
 FROM use_heimerdinger uh

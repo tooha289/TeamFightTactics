@@ -10,3 +10,4 @@ product/**/*.csv
 # Ignore extensions
 *.pyc
 *.json
+*.zip

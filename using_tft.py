@@ -46,7 +46,8 @@ if __name__ == "__main__":
 
     regions = REGIONS_INFO.keys()
 
-    slected_region = list(regions)[:]
+    # slected_region = list(regions)[]
+    slected_region = ["TH2"]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -68,11 +69,13 @@ if __name__ == "__main__":
         start_ranking = 1
         end_ranking = 10
 
+        challenger_league_json = riot_api_adaptor.get_challenger_league(region).json()
+
         (
             player_table["players"],
             player_table["player_statistics"],
         ) = tft_data_handler.get_player_classes_from(
-            riot_api_adaptor.get_challenger_league(region).json(),
+            challenger_league_json,
             region,
             start_ranking,
             end_ranking,
@@ -84,7 +87,7 @@ if __name__ == "__main__":
         continent = next(iter(player_table["players"])).continent
 
         start_index = 0
-        match_count = 10
+        match_count = 20
 
         for player in player_table["players"]:
             response = riot_api_adaptor.get_match_ids_by_puuid(
@@ -100,7 +103,9 @@ if __name__ == "__main__":
 
         for match_json in matches_json:
             players = tft_data_handler.get_players_from(match_json)
-            player_table["players"].update([player for player in players if player not in existing_players])
+            player_table["players"].update(
+                [player for player in players if player not in existing_players]
+            )
             match_tables["matches"].append(
                 tft_data_handler.get_matches_from(match_json)
             )

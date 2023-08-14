@@ -377,10 +377,10 @@ class MatchPlayer(object):
 
 
 class MatchAugment(object):
-    def __init__(self, match_player_id, name, sequence) -> None:
+    def __init__(self, match_player_id, sequence, name) -> None:
         self._match_player_id = match_player_id
-        self._name = name
         self._sequence = sequence
+        self._name = name
 
     @property
     def match_player_id(self):
@@ -417,20 +417,20 @@ class MatchTrait(object):
     def __init__(
         self,
         match_player_id,
+        sequence,
         name,
         num_units,
         style,
         tier_current,
         tier_total,
-        sequence,
     ) -> None:
         self._match_player_id = match_player_id
+        self._sequence = sequence
         self._name = name
         self._num_units = num_units
         self._style = style
         self._tier_current = tier_current
         self._tier_total = tier_total
-        self._sequence = sequence
 
     @property
     def match_player_id(self):
@@ -507,19 +507,19 @@ class MatchUnit(object):
     def __init__(
         self,
         match_player_id,
+        sequence,
         name,
         rarity,
         tier,
-        sequence,
         item1,
         item2,
         item3,
     ) -> None:
         self._match_player_id = match_player_id
+        self._sequence = sequence
         self._name = name
         self._rarity = rarity
         self._tier = tier
-        self._sequence = sequence
         self._item1 = item1
         self._item2 = item2
         self._item3 = item3

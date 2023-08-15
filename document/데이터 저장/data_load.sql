@@ -2,8 +2,8 @@
 SHOW VARIABLES LIKE 'FOREIGN_KEY_CHECKS';
 SET foreign_key_checks = 0;
 
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\tft_matches_20230814.csv'
-INTO TABLE tft_source.match
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\unit.csv'
+INTO TABLE tftdb.match_unit
 FIELDS TERMINATED BY ','
 IGNORE 1 LINES;
 
@@ -11,10 +11,10 @@ SET foreign_key_checks = 1;
 SHOW VARIABLES LIKE 'FOREIGN_KEY_CHECKS';
 
 -- check count
-SELECT count(*) FROM tft_source.match;
+SELECT count(*) FROM tftdb.match_player;
 
 -- delete data
-DELETE FROM tft_source.match WHERE match_id<>'';
+DELETE FROM tft_source.match_player WHERE match_id<>'';
 
 -- insert player table
 INSERT INTO tftdb.player (puuid, name, continent, region)
@@ -47,4 +47,16 @@ ON DUPLICATE KEY UPDATE
 	version_patch = source.version_patch,
 	version_date = source.version_date,
 	tft_set_number = source.tft_set_number;
+    
+-- insert match_player table
+INSERT INTO tftdb.match_player (match_player_id, match_id, puuid, last_round, level, placement, time_eliminated)
+SELECT match_player_id, match_id, puuid, last_round, level, placement, time_eliminated
+FROM tft_source.match_player AS source
+ON DUPLICATE KEY UPDATE
+	match_id = source.match_id,
+	puuid = source.puuid,
+	last_round = source.last_round,
+	level = source.level,
+	placement = source.placement,
+	time_eliminated = source.time_eliminated;
     

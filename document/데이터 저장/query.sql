@@ -146,3 +146,11 @@ ORDER BY mpi.unit_name, count_item DESC;
 -- 각 지역 1위 플레이어의 최근 10게임 유닛 조합
 -- 각 지역 1위 플레이어의 최근 10게임 특성 조합
 
+-- 각 지역별 게임 시간대 분석
+
+-- 각 플레이어 별 2개 이상 증강이 존재하는 경우
+SELECT match_player_id, count(*)
+FROM tftdb.match_augment
+GROUP BY match_player_id
+HAVING count(*) >= 2
+ORDER BY match_player_id;

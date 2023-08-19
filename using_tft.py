@@ -10,7 +10,10 @@ from tft_models import Player
 from utility import create_directories
 
 if __name__ == "__main__":
-    riot_api_adaptor = RiotApiAdaptor("")
+    file_path = "./json/setting.json"
+    with open(file_path, "r") as json_file:
+        setting = json.load(json_file)
+    riot_api_adaptor = RiotApiAdaptor(setting["api_key"], repeat=7)
     tft_data_handler = TftDataHandler(riot_api_adaptor)
 
     LOGGING_FORMAT = "%(asctime)s %(levelname)-8s %(name)-15s %(message)s"
@@ -46,8 +49,8 @@ if __name__ == "__main__":
 
     regions = REGIONS_INFO.keys()
 
-    # slected_region = list(regions)[]
-    slected_region = ["TH2"]
+    slected_region = list(regions)[14:]
+    # slected_region = ["TH2"]
 
     # Format string arguments for the path.
     relative_path = "./product"
@@ -67,7 +70,7 @@ if __name__ == "__main__":
 
     for region in slected_region:
         start_ranking = 1
-        end_ranking = 1
+        end_ranking = 10
 
         challenger_league_json = riot_api_adaptor.get_challenger_league(region).json()
 
@@ -87,7 +90,7 @@ if __name__ == "__main__":
         continent = next(iter(player_table["players"])).continent
 
         start_index = 0
-        match_count = 1
+        match_count = 20
 
         for player in player_table["players"]:
             response = riot_api_adaptor.get_match_ids_by_puuid(
@@ -123,14 +126,14 @@ if __name__ == "__main__":
             )
 
         # add name information
-        for player in player_table["players"]:
-            if player.name != "":
-                continue
-            player_json = riot_api_adaptor.get_player_by_player_puuid(
-                region, player.puuid
-            ).json()
-            player_name = player_json["name"]
-            player.name = player_name
+        # for player in player_table["players"]:
+        #     if player.name != "":
+        #         continue
+        #     player_json = riot_api_adaptor.get_player_by_player_puuid(
+        #         region, player.puuid
+        #     ).json()
+        #     player_name = player_json["name"]
+        #     player.name = player_name
 
         # store player data
         for table_name, table in player_table.items():
@@ -176,13 +179,8 @@ if __name__ == "__main__":
 
     # csv to json
     directory_path = "./product/results"
-    csv_file_list = [
-        join(directory_path, file)
-        for file in os.listdir(directory_path)
-        if file.endswith(".csv")
-    ]
-    json_file_list = [file.replace("csv", "json") for file in csv_file_list]
-    file_path_list = zip(csv_file_list, json_file_list)
-    for csv_file, json_file in file_path_list:
-        csv_utilities.csv_to_json(csv_file, json_file)
+    csv_utilities.csv_to_json(
+        join(directory_path, "tft_players.csv"),
+        join(directory_path, "tft_players.json"),
+    )
     print()

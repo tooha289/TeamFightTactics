@@ -12,4 +12,5 @@ product/**/*.csv
 *.json
 *.zip
 *.json
+*.csv
 Dump*.sql

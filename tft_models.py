@@ -57,7 +57,7 @@ class Player(object):
     def __eq__(self, other):
         if not isinstance(other, Player):
             return False
-        return self._puuid == other._puuid
+        return self._puuid == other._puuid and self._name == other._name 
 
 
 class PlayerStatistic(object):

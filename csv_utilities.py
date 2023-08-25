@@ -6,9 +6,9 @@ import pandas as pd
 from pyparsing import Iterable
 
 
-def save_csv_file(path, lines, *, mode="w", encoding="utf-8"):
+def save_csv_file(path, lines, *, mode="w", encoding="utf-8", quoting=csv.QUOTE_NONNUMERIC):
     with open(path, mode=mode, encoding=encoding, newline="") as f:
-        csv_writer = csv.writer(f)
+        csv_writer = csv.writer(f, quoting=quoting)
         for line in lines:
             csv_writer.writerow(line)
 

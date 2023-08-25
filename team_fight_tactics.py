@@ -34,8 +34,9 @@ REGIONS_INFO = {
 
 
 class RiotApiAdaptor(object):
-    def __init__(self, api_key) -> None:
+    def __init__(self, api_key, repeat=1) -> None:
         self._logger = logging.getLogger("team_fight_tactics.RiotApiAdaptor")
+        self._repeat = repeat
 
         self._api_key = api_key
         self._url_get_challenger_leauge = (
@@ -70,14 +71,17 @@ class RiotApiAdaptor(object):
         """
         url = self._url_get_challenger_leauge.format(region=region)
         try:
-            response = requests.get(url, headers=self._headers)
-            self._logger.debug(f"get_challenger_league: {response.status_code}")
+            for i in range(self._repeat):
+                response = requests.get(url, headers=self._headers)
+                self._logger.debug(f"get_challenger_league: {response.status_code}")
+                if response.status_code != 503:
+                    break
         except Exception as e:
             print(e)
             self._logger.exception(e)
             return None
 
-        time.sleep(2)
+        time.sleep(1.5)
         return response
 
     def get_player_by_player_puuid(self, region, puuid) -> requests.models.Response:
@@ -90,14 +94,19 @@ class RiotApiAdaptor(object):
         """
         url = self._url_get_player_by_puuid.format(region=region, puuid=puuid)
         try:
-            response = requests.get(url, headers=self._headers)
-            self._logger.debug(f"get_player_by_player_puuid: {response.status_code}")
+            for i in range(self._repeat):
+                response = requests.get(url, headers=self._headers)
+                self._logger.debug(
+                    f"get_player_by_player_puuid: {response.status_code}"
+                )
+                if response.status_code != 503:
+                    break
         except Exception as e:
             print(e)
             self._logger.exception(e)
             return None
 
-        time.sleep(2)
+        time.sleep(1.5)
         return response
 
     def get_player_by_player_name(self, region, name) -> requests.models.Response:
@@ -110,14 +119,17 @@ class RiotApiAdaptor(object):
         """
         url = self._url_get_player_by_name.format(region=region, name=name)
         try:
-            response = requests.get(url, headers=self._headers)
-            self._logger.debug(f"get_player_by_player_name: {response.status_code}")
+            for i in range(self._repeat):
+                response = requests.get(url, headers=self._headers)
+                self._logger.debug(f"get_player_by_player_name: {response.status_code}")
+                if response.status_code != 503:
+                    break
         except Exception as e:
             print(e)
             self._logger.exception(e)
             return None
 
-        time.sleep(2)
+        time.sleep(1.5)
         return response
 
     def get_match_ids_by_puuid(
@@ -142,14 +154,17 @@ class RiotApiAdaptor(object):
             "end_time": end_time,
         }
         try:
-            response = requests.get(url, params=params, headers=self._headers)
-            self._logger.debug(f"get_match_ids_by_puuid: {response.status_code}")
+            for i in range(self._repeat):
+                response = requests.get(url, params=params, headers=self._headers)
+                self._logger.debug(f"get_match_ids_byF_puuid: {response.status_code}")
+                if response.status_code != 503:
+                    break
         except Exception as e:
             print(e)
             self._logger.exception(e)
             return None
 
-        time.sleep(2)
+        time.sleep(1.5)
         return response
 
     def get_matches_by_match_id(self, continent, match_id) -> requests.models.Response:
@@ -164,14 +179,17 @@ class RiotApiAdaptor(object):
             continent=continent, match_id=match_id
         )
         try:
-            response = requests.get(url, headers=self._headers)
-            self._logger.debug(f"get_matches_by_match_id: {response.status_code}")
+            for i in range(self._repeat):
+                response = requests.get(url, headers=self._headers)
+                self._logger.debug(f"get_matches_by_match_id: {response.status_code}")
+                if response.status_code != 503:
+                    break
         except Exception as e:
             print(e)
             self._logger.exception(e)
             return None
 
-        time.sleep(2)
+        time.sleep(1.5)
         return response
 
     def __repr__(self) -> str:
@@ -294,14 +312,14 @@ class TftDataHandler(object):
             match_timestamp = info["game_datetime"]
             match_date = str(datetime.fromtimestamp(match_timestamp // 1000))
 
-            match_version= info["game_version"]
+            match_version = info["game_version"]
             pattern = r"\((.*?)\)"
 
             version = match_version.split(" ")[1]
             version_major, version_minor, version_patch, _ = version.split(".")
             match = re.search(pattern, match_version)
             if match:
-                 version_date = match.group(1)
+                version_date = match.group(1)
             version_date = datetime.strptime(version_date, "%b %d %Y/%H:%M:%S")
             version_date = version_date.strftime("%Y-%m-%d %H:%M:%S")
 

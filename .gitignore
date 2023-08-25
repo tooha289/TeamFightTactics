@@ -12,4 +12,8 @@ product/**/*.csv
 *.json
 *.zip
 *.json
+*.csv
 Dump*.sql
+
+**/*checkpoint.ipynb
+notepad/.ipynb_checkponts/notepad-checkpoint.ipynb
